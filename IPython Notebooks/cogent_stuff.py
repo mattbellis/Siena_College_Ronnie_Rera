@@ -55,3 +55,32 @@ def rise_time_prob_fast_exp_dist(rise_time,energy,mu0,sigma0,murel,sigmarel,numr
     return ret
 
 ################################################################################
+################################################################################
+# Precalculate the probabilities for all the lognormal distributions.
+################################################################################
+def rise_time_prob_exp_progression(rise_time,energy,mu_k,sigma_k,xlo,xhi):
+
+    expfunc = lambda p, x: p[1]*np.exp(-p[0]*x) + p[2]
+    expfunc1 = lambda p, x: p[1]*x + p[0]
+
+    # Pull out the constants for the polynomials.
+    allmu = expfunc(mu_k,energy)
+    #allsigma = expfunc(sigma_k,energy)
+    allsigma = expfunc1(sigma_k,energy) # Linear func
+
+    #ret = (1.0/(x*sigma*np.sqrt(2*np.pi)))*np.exp(-((np.log(x)-mu)**2)/(2*sigma*sigma))
+    if type(rise_time)==np.ndarray:
+        ret = np.zeros(len(rise_time))
+        for i in xrange(len(ret)):
+            #print rise_time[i],allmu[i],allsigma[i]
+            ret[i] = pdfs.lognormal(rise_time[i],allmu[i],allsigma[i],xlo,xhi)
+            #print "\t",ret[i]
+    else:
+        ret = 0.0
+        #print rise_time,allmu,allsigma
+        ret = pdfs.lognormal(rise_time,allmu,allsigma,xlo,xhi)
+        #print "\t",ret
+
+
+    return ret
+
